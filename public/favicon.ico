@@ -1,0 +1,17 @@
+I cannot generate binary content like favicon.ico files as they require specific binary encoding. However, I can provide you with instructions on how to create or obtain a favicon for your glassmorphism todo app:
+
+**Option 1: Use a favicon generator**
+1. Visit https://favicon.io/favicon-generator/
+2. Create a simple icon with text "TD" (for Todo) or a checkmark symbol
+3. Use colors that match your glassmorphism theme (light blues, whites, transparent effects)
+4. Download the generated favicon.ico file
+
+**Option 2: Convert an existing image**
+1. Create a 32x32 pixel PNG with your desired todo app icon
+2. Use an online converter to convert PNG to ICO format
+3. Save as favicon.ico
+
+**Option 3: Use a default placeholder**
+You can temporarily use any existing favicon.ico file from another project until you create a custom one.
+
+The favicon should be placed at `public/favicon.ico` and will be automatically served by Next.js at `/favicon.ico`.
