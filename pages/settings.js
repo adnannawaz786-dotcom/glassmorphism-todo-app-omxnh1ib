@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Settings as SettingsIcon, 
-  Palette, 
-  Moon, 
-  Sun, 
-  Volume2, 
-  VolumeX, 
-  Trash2, 
-  Download, 
-  Upload, 
+import {
+  Settings as SettingsIcon,
+  Palette,
+  Moon,
+  Sun,
+  Volume2,
+  VolumeX,
+  Trash2,
+  Download,
+  Upload,
   RotateCcw,
   Check,
   X
@@ -19,7 +19,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Switch } from '../components/ui/switch';
 import { Separator } from '../components/ui/separator';
 import { Badge } from '../components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '../components/ui/alert-dialog';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -32,7 +42,7 @@ const Settings = () => {
     backgroundBlur: 20,
     glassOpacity: 0.1
   });
-  
+
   const [exportData, setExportData] = useState(null);
   const [importStatus, setImportStatus] = useState(null);
 
@@ -40,7 +50,11 @@ const Settings = () => {
     // Load settings from localStorage
     const savedSettings = localStorage.getItem('todoAppSettings');
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+      const parsed = JSON.parse(savedSettings);
+      setSettings(parsed);
+
+      // Apply theme immediately
+      document.documentElement.classList.toggle('dark', parsed.theme === 'dark');
     }
   }, []);
 
@@ -48,7 +62,7 @@ const Settings = () => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     localStorage.setItem('todoAppSettings', JSON.stringify(newSettings));
-    
+
     // Apply theme changes immediately
     if (key === 'theme') {
       document.documentElement.classList.toggle('dark', value === 'dark');
@@ -63,11 +77,11 @@ const Settings = () => {
       exportDate: new Date().toISOString(),
       version: '1.0'
     };
-    
+
     const dataStr = JSON.stringify(exportObj, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `todo-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -75,7 +89,7 @@ const Settings = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     setExportData('success');
     setTimeout(() => setExportData(null), 3000);
   };
@@ -88,28 +102,31 @@ const Settings = () => {
     reader.onload = (e) => {
       try {
         const importData = JSON.parse(e.target.result);
-        
+
         if (importData.todos) {
           localStorage.setItem('todos', JSON.stringify(importData.todos));
         }
-        
+
         if (importData.settings) {
           setSettings(importData.settings);
           localStorage.setItem('todoAppSettings', JSON.stringify(importData.settings));
+
+          // Apply theme immediately
+          document.documentElement.classList.toggle('dark', importData.settings.theme === 'dark');
         }
-        
+
         setImportStatus('success');
         setTimeout(() => {
           setImportStatus(null);
           window.location.reload();
         }, 2000);
-        
+
       } catch (error) {
         setImportStatus('error');
         setTimeout(() => setImportStatus(null), 3000);
       }
     };
-    
+
     reader.readAsText(file);
     event.target.value = '';
   };
@@ -133,6 +150,7 @@ const Settings = () => {
     };
     setSettings(defaultSettings);
     localStorage.setItem('todoAppSettings', JSON.stringify(defaultSettings));
+    document.documentElement.classList.remove('dark');
   };
 
   const containerVariants = {
@@ -154,14 +172,14 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-900 p-4">
-      <motion.div 
+      <motion.div
         className="max-w-4xl mx-auto"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Header */}
-        <motion.div 
+        <motion.div
           className="text-center mb-8"
           variants={itemVariants}
         >
@@ -341,17 +359,17 @@ const Settings = () => {
                       className="w-full justify-start bg-white/10 hover:bg-white/20 border-white/30"
                       asChild
                     >
-                      <label htmlFor="import-file" className="cursor-pointer">
+                      <label htmlFor="import-file" className="cursor-pointer flex items-center">
                         <Upload className="w-4 h-4 mr-2" />
                         Import Data
                         {importStatus === 'success' && (
-                          <Badge variant="secondary" className="ml-auto">
+                          <Badge variant="secondary" className="ml-auto flex items-center">
                             <Check className="w-3 h-3 mr-1" />
                             Success
                           </Badge>
                         )}
                         {importStatus === 'error' && (
-                          <Badge variant="destructive" className="ml-auto">
+                          <Badge variant="destructive" className="ml-auto flex items-center">
                             <X className="w-3 h-3 mr-1" />
                             Error
                           </Badge>
@@ -402,3 +420,22 @@ const Settings = () => {
                       <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete all your todos and settings.
                       </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearAllData} className="bg-red-600 hover:bg-red-700">
+                        Clear All Data
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Settings;
